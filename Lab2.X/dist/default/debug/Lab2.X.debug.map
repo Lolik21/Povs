@@ -1,0 +1,38 @@
+MPLINK 5.09, LINKER
+Linker Map File - Created Wed Sep 26 00:17:37 2018
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000000
+                   .org_1       code   0x000000    program   0x000060
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x00002f      
+            48 out of 1093 program addresses used, program memory utilization is 4%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    BEGIN   0x00001f    program     static D:\WORK\Povs\Lab2.X\Main.asm
+                    LOOP1   0x000023    program     static D:\WORK\Povs\Lab2.X\Main.asm
+        MySuperSubRootine   0x000001    program     static D:\WORK\Povs\Lab2.X\Main.asm
+                 SUBLOOP1   0x000004    program     static D:\WORK\Povs\Lab2.X\Main.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+        MySuperSubRootine   0x000001    program     static D:\WORK\Povs\Lab2.X\Main.asm
+                 SUBLOOP1   0x000004    program     static D:\WORK\Povs\Lab2.X\Main.asm
+                    BEGIN   0x00001f    program     static D:\WORK\Povs\Lab2.X\Main.asm
+                    LOOP1   0x000023    program     static D:\WORK\Povs\Lab2.X\Main.asm
+
+

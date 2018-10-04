@@ -1,0 +1,262 @@
+MPASM 5.81                          MAIN.ASM   9-18-2018  23:22:21         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001 
+                      00002 #include "p16f84.inc" 
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : Jul 23 2018
+                      00005 ;  MPASM PIC16F84 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2018 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      00207         LIST
+                      00003     
+  00000030            00004 StartingAdress set 0x30  ; the starting address of the array, a constant
+  0000002F            00005 CurrentPointer equ 0x2F  ; the pointer to the current element in array, a variable
+  0000002A            00006 IndexI equ 0x2A;
+  0000002C            00007 IndexJ equ 0x2C ; the pointer to inner sort loop
+  0000002B            00008 TempVariable equ 0x2B ; Temp variable
+  0000002E            00009 MinimalElement equ 0x2E  ; the maximal number in array, a variable
+  00000014            00010 ArrayLength set 0x14   ; the number of elements in array, a constant 
+                      00011 
+                      00012     
+0000                  00013 START
+0000   1283           00014         BCF STATUS, 0x5 ; set Bank0 in Data Memory by clearing RP0 bit in STATUS register
+0001   01AF           00015         CLRF CurrentPointer      ; CurrentPointer=0
+0002   0103           00016         CLRW
+0003   3EFF           00017         ADDLW 0xFF
+0004   00AE           00018         MOVWF MinimalElement;
+0005                  00019 LOOP1
+0005   082F           00020         MOVF CurrentPointer,0    ; W=CurrentPointer
+0006   3E30           00021         ADDLW StartingAdress     ; W=W+CurrentPointer
+0007   0084           00022         MOVWF FSR       ; FSR=W, INDF=array[W]
+0008   0800           00023         MOVF INDF,0     ; W=INDF
+0009   022E           00024         SUBWF MinimalElement,0   ; W=W-MinimalElement
+000A   1C03           00025         BTFSS STATUS,0  ; If W > 0 then go to SMALL
+000B   2811           00026         GOTO ValueIsMoreThenVMIN
+                      00027                         ; Else W <= 0 then W is smaller than MinimalElement
+000C   082F           00028         MOVF CurrentPointer,0 ; W=CurrentPointer
+000D   3E30           00029         ADDLW StartingAdress ; W = W + CP
+000E   0084           00030         MOVWF FSR ; FSR = W;
+000F   0800           00031         MOVF INDF,0 ; W = INDF
+0010   00AE           00032         MOVWF MinimalElement ; MinimalElement=array[CurrentPointer]
+                      00033         
+0011                  00034 ValueIsMoreThenVMIN
+0011   0AAF           00035         INCF CurrentPointer,0x1  ; CurrentPointer=CurrentPointer+1
+0012   3014           00036         MOVLW ArrayLength     ; W=ArrayLength
+0013   022F           00037         SUBWF CurrentPointer,0   ; W=W-CurrentPointer
+0014   1C03           00038         BTFSS STATUS,0  ; CurrentPointer > ArrayLength ?
+0015   2805           00039         GOTO LOOP1      ; no
+                      00040                         ; yes
+0016   01AA           00041         CLRF IndexI      ; BUBBLE SORT
+0017   01AC           00042         CLRF IndexJ
+0018                  00043 SortAcsLoop     
+MPASM 5.81                          MAIN.ASM   9-18-2018  23:22:21         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+Message[305]: Using default destination of 1 (file).
+0018   0AAA           00044         INCF IndexI
+0019   3014           00045         MOVLW ArrayLength     ; W=ArrayLength
+001A   022C           00046         SUBWF IndexJ,0   ; W=W-CurrentPointer
+001B   1803           00047         BTFSC STATUS,0  ; IndexI > ArrayLength ?
+001C   2837           00048         GOTO EndOfSort      ; yes
+                      00049         
+001D                  00050 SortInnerLoop
+Message[305]: Using default destination of 1 (file).
+001D   0AAC           00051         INCF IndexJ
+                      00052         
+001E   3014           00053         MOVLW ArrayLength     ; W=ArrayLength
+001F   022C           00054         SUBWF IndexJ,0   ; W=W-CurrentPointer
+0020   1803           00055         BTFSC STATUS,0  ; IndexJ > ArrayLength ?
+0021   2836           00056         GOTO EndOfInnerLoop      ; yes
+                      00057         
+0022   082C           00058         MOVF IndexJ,0 ; 
+0023   3E30           00059         ADDLW StartingAdress
+0024   0084           00060         MOVWF FSR                   ;here we getting a[IndexJ] -> TempVariable
+0025   0800           00061         MOVF INDF,0
+0026   00AB           00062         MOVWF TempVariable
+Message[305]: Using default destination of 1 (file).
+0027   03AC           00063         DECF IndexJ ; temp decrement
+0028   082C           00064         MOVF IndexJ,0 ; 
+0029   3E30           00065         ADDLW StartingAdress ; 
+002A   0084           00066         MOVWF FSR                   ; here we getting a[IndexJ - 1] -> W
+002B   0800           00067         MOVF INDF,0
+Message[305]: Using default destination of 1 (file).
+002C   0AAC           00068         INCF IndexJ
+002D   02AB           00069         SUBWF TempVariable,1 ; W = W - TempVariable but W dont change(2-nd param)
+002E   1803           00070         BTFSC STATUS,0 ; If a[IndexJ] < a[IndexJ-1]
+002F   281D           00071         GOTO SortInnerLoop
+                      00072         ;a[IndexJ] >= a[IndexJ-1]
+0030   00AC           00073         MOVWF IndexJ
+Message[305]: Using default destination of 1 (file).
+0031   03AC           00074         DECF IndexJ
+Message[305]: Using default destination of 1 (file).
+0032   08AB           00075         MOVF TempVariable
+0033   00AC           00076         MOVWF IndexJ
+Message[305]: Using default destination of 1 (file).
+0034   0AAC           00077         INCF IndexJ
+0035   281D           00078         GOTO SortInnerLoop
+                      00079 
+0036                  00080 EndOfInnerLoop
+0036   01AC           00081         CLRF IndexJ
+0037                  00082 EndOfSort
+0037   01AA           00083         CLRF IndexI
+0038   01AC           00084         CLRF IndexJ
+                      00085         
+                      00086         
+                      00087         END
+MPASM 5.81                          MAIN.ASM   9-18-2018  23:22:21         PAGE  3
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+ArrayLength                       00000014
+C                                 00000000
+CurrentPointer                    0000002F
+DC                                00000001
+EEADR                             00000009
+EECON1                            00000088
+EECON2                            00000089
+EEDATA                            00000008
+EEIE                              00000006
+EEIF                              00000004
+EndOfInnerLoop                    00000036
+EndOfSort                         00000037
+F                                 00000001
+FSR                               00000004
+GIE                               00000007
+INDF                              00000000
+INTCON                            0000000B
+INTE                              00000004
+INTEDG                            00000006
+INTF                              00000001
+IRP                               00000007
+IndexI                            0000002A
+IndexJ                            0000002C
+LOOP1                             00000005
+MinimalElement                    0000002E
+NOT_PD                            00000003
+NOT_RBPU                          00000007
+NOT_TO                            00000004
+OPTION_REG                        00000081
+PCL                               00000002
+PCLATH                            0000000A
+PORTA                             00000005
+PORTB                             00000006
+PS0                               00000000
+PS1                               00000001
+PS2                               00000002
+PSA                               00000003
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RD                                00000000
+MPASM 5.81                          MAIN.ASM   9-18-2018  23:22:21         PAGE  4
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RP0                               00000005
+RP1                               00000006
+START                             00000000
+STATUS                            00000003
+SortAcsLoop                       00000018
+SortInnerLoop                     0000001D
+StartingAdress                    00000030
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0SE                              00000004
+TMR0                              00000001
+TMR0IE                            00000005
+TMR0IF                            00000002
+TRISA                             00000085
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISB                             00000086
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TempVariable                      0000002B
+ValueIsMoreThenVMIN               00000011
+W                                 00000000
+WR                                00000001
+WREN                              00000002
+WRERR                             00000003
+Z                                 00000002
+_CONFIG                           00002007
+_CP_OFF                           00003FFF
+_CP_ON                            0000000F
+_FOSC_EXTRC                       00003FFF
+_FOSC_HS                          00003FFE
+_FOSC_LP                          00003FFC
+_FOSC_XT                          00003FFD
+_HS_OSC                           00003FFE
+_IDLOC0                           00002000
+_IDLOC1                           00002001
+_IDLOC2                           00002002
+_IDLOC3                           00002003
+_LP_OSC                           00003FFC
+_PWRTE_OFF                        00003FFF
+_PWRTE_ON                         00003FF7
+_RC_OSC                           00003FFF
+_WDTE_OFF                         00003FFB
+MPASM 5.81                          MAIN.ASM   9-18-2018  23:22:21         PAGE  5
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDTE_ON                          00003FFF
+_WDT_OFF                          00003FFB
+_WDT_ON                           00003FFF
+_XT_OSC                           00003FFD
+__16F84                           00000001
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXX-------
+
+All other memory blocks unused.
+
+Program Memory Words Used:    57
+Program Memory Words Free:   967
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     7 reported,     0 suppressed
+
+
